@@ -26,6 +26,15 @@ fn main() {
     println!("Total number of records: {}", summarizer.num_records());
     for (key, summary) in summarizer.results() {
         println!("\nField \"{}\" (count: {})", key, summary.count);
+        println!("=================");
+
+        if summary.null_count > 0 {
+            println!("Null => count: {}", summary.null_count);
+        }
+
+        if summary.obj_count > 0 {
+            println!("Object => count: {}", summary.obj_count);
+        }
 
         if summary.num.count > 0 {
             let num = &summary.num;
@@ -40,6 +49,22 @@ fn main() {
             println!(
                 "String => count: {}, shortest: {}, longest: {}, avg length: {:.*}",
                 string.count, string.min_word, string.max_word, 4, string.avg(),
+            );
+        }
+
+        if summary.boolean.count > 0 {
+            let boolean = &summary.boolean;
+            println!(
+                "Boolean => count: {}, # of false: {}, # of true: {}",
+                boolean.count, boolean.num_false, boolean.num_true,
+            );
+        }
+
+        if summary.array.count > 0 {
+            let array = &summary.array;
+            println!(
+                "Array => count: {}, shortest: {}, longest: {}, avg length: {:.*}",
+                array.count, array.min, array.max, 4, array.avg(),
             );
         }
     }
