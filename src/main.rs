@@ -9,17 +9,14 @@ use rustc_serialize::json::Json;
 fn main() {
     let mut summarizer = Summarizer::new();
     let stdin = std::io::stdin();
-    let values = stdin
+    let objects = stdin
         .lock()
         .lines()
         .filter_map(|line| line.ok())
-        .filter_map(|line| Json::from_str(&line).ok());
-    
-    for value in values {
-        let object = match value.as_object() {
-            Some(object) => object,
-            None => continue,
-        };
+        .filter_map(|line: String| Json::from_str(&line).ok())
+        .filter_map(|obj: Json| obj.as_object().cloned());
+
+    for object in objects {
         summarizer.next(&object);
     }
 
