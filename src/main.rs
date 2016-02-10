@@ -12,12 +12,22 @@ fn main() {
     let objects = stdin
         .lock()
         .lines()
-        .filter_map(|line| line.ok())
-        .filter_map(|line: String| Json::from_str(&line).ok())
-        .filter_map(|obj: Json| obj.as_object().cloned());
+        .enumerate()
+        .map(|tup| {
+            let (line_num, line) = tup;
+            line.map_err(|_| format!("Can't read line {} from stdin.", line_num))
+                .and_then(|line| Json::from_str(&line).map_err(|_| format!("Can't parse JSON on line {}.", line_num)))
+                .and_then(|json| json.as_object().cloned().ok_or(format!("JSON value on line {} is not an object.", line_num)))
+        });
 
     for object in objects {
-        summarizer.next(&object);
+        match object {
+            Ok(obj) => summarizer.next(&obj),
+            Err(err) => {
+                println!("{:}", err);
+                return
+            },
+        }
     }
 
     println!("Total number of records: {}", summarizer.num_records());
